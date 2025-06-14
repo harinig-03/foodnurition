@@ -21,14 +21,14 @@ if st.button("Analyze"):
         st.warning("Please enter a food item.")
     else:
         try:
-            url = "https://foodnurition-5.onrender.com"
-
+            # FIXED: Call correct API endpoint
+            url = f"https://foodnurition-5.onrender.com/analyze/{urllib.parse.quote(food_item)}"
             response = requests.get(url)
             if response.status_code == 200:
                 st.session_state.nutrition_data = response.json()
-                st.session_state.food_item = food_item  # Save the input
+                st.session_state.food_item = food_item  # Save input for reuse
             else:
-                st.error("API error. Please try again.")
+                st.error(f"API error. Status code: {response.status_code}")
         except Exception as e:
             st.error(f"Error: {str(e)}")
 
