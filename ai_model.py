@@ -5,7 +5,7 @@ from loguru import logger
 import os
 import google.generativeai as genai
 
-GEMINI_API_KEY=AIzaSyAqY9CIljkQ5lXOu4smGch51DbbOZ2vQww
+GEMINI_API_KEY="AIzaSyAqY9CIljkQ5lXOu4smGch51DbbOZ2vQww"
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 ## function to load Gemini Pro model and get repsonses
