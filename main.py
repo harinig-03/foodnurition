@@ -4,7 +4,7 @@ from ai_model import get_nutrition_info
 from ai_model import query_nutrition_knowledge
 
 
-GEMINI_API_KEY=AIzaSyAqY9CIljkQ5lXOu4smGch51DbbOZ2vQww
+GEMINI_API_KEY="AIzaSyAqY9CIljkQ5lXOu4smGch51DbbOZ2vQww"
 app = FastAPI()
 
 @app.get("/")
