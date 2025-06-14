@@ -21,7 +21,8 @@ if st.button("Analyze"):
         st.warning("Please enter a food item.")
     else:
         try:
-            url = f"http://127.0.0.1:8000/analyze/{food_item}"
+            url = "https://your-backend-api.onrender.com/analyze/{food_item}"
+
             response = requests.get(url)
             if response.status_code == 200:
                 st.session_state.nutrition_data = response.json()
