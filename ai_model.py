@@ -33,9 +33,14 @@ Only analyze the food item exactly as provided. Do not mention cooking variation
 
 Food item: {food_item}
 """
+    # Collect full response from streaming
+    response = chat.send_message(prompt, stream=True)
+    result = ""
+    for chunk in response:
+        result += chunk.text
 
-    response=chat.send_message(prompt,stream=True)
-    return response
+    return result
+
 
 
 
