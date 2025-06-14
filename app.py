@@ -68,10 +68,9 @@ else:
         carbs = extract_macro(["Carbohydrates", "Carbs"], nutrition_text)
         fiber = extract_macro(["Fiber"], nutrition_text)
 
-    # You can now display the chart or results
-   else:
-    st.error("❌ 'nutrition_info' is missing in API response.")
-    st.json(st.session_state.nutrition_data)  # Optional: show full raw response
+    else:
+        st.error("❌ 'nutrition_info' is missing in API response.")
+        st.json(st.session_state.nutrition_data)  # Optional: show full raw response
 
 
     st.write(f"🔍 Extracted Macros — Protein: {protein}, Fat: {fat}, Carbs: {carbs}, Fiber: {fiber}")
