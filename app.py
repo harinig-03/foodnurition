@@ -61,12 +61,12 @@ else:
         return 0.0
 
     if "nutrition_info" in st.session_state.nutrition_data:
-    nutrition_text = st.session_state.nutrition_data["nutrition_info"]
+        nutrition_text = st.session_state.nutrition_data["nutrition_info"]
     
-    protein = extract_macro(["Protein"], nutrition_text)
-    fat = extract_macro(["Fat", "Fats"], nutrition_text)
-    carbs = extract_macro(["Carbohydrates", "Carbs"], nutrition_text)
-    fiber = extract_macro(["Fiber"], nutrition_text)
+        protein = extract_macro(["Protein"], nutrition_text)
+        fat = extract_macro(["Fat", "Fats"], nutrition_text)
+        carbs = extract_macro(["Carbohydrates", "Carbs"], nutrition_text)
+        fiber = extract_macro(["Fiber"], nutrition_text)
 
     # You can now display the chart or results
    else:
