@@ -33,12 +33,21 @@ if st.button("Analyze"):
             st.error(f"Error: {str(e)}")
 
 # --- Display if Data Exists ---
-if st.session_state.nutrition_data:
+# --- Display if Data Exists ---
+if "nutrition_data" in st.session_state and st.session_state.nutrition_data:
     data = st.session_state.nutrition_data
-    nutrition_text = data["nutrition_info"]
 
-    st.subheader(f"Nutrition info for: {st.session_state.food_item.capitalize()}")
-    st.write(nutrition_text)
+    if "nutrition_info" in data:
+        nutrition_text = data["nutrition_info"]
+        st.subheader(f"Nutrition info for: {st.session_state.food_item.capitalize()}")
+        st.write(nutrition_text)
+    else:
+        st.error("⚠️ 'nutrition_info' was not found in the API response.")
+        st.write("🔍 Full response for debugging:")
+        st.json(data)
+else:
+    st.warning("⚠️ No nutrition data found. Please try analyzing a food item first.")
+
 
     def extract_macro(names, text):
         for name in names:
