@@ -72,12 +72,6 @@ if isinstance(data, dict) and "nutrition_info" in data:
     st.bar_chart(df.set_index("Macronutrient"))
 
     # Health Score
-    score = 0
-    if fiber > 2.5: score += 1
-    if protein > 7: score += 1
-    if fat < 5: score += 1
-    if carbs < 27: score += 1
-
     health_status = {
         4: "Excellent 🟢",
         3: "Good 🟡",
@@ -87,7 +81,6 @@ if isinstance(data, dict) and "nutrition_info" in data:
     }
     st.markdown(f"### 🩺 Health Score: {score}/4 — **{health_status[score]}**")
 
-    # Suggested Pairings
     suggestions = {
         "banana": "Pair banana with Greek yogurt and oats for a complete breakfast.",
         "oats": "Top your oats with berries and nuts for extra fiber and healthy fats.",
@@ -97,28 +90,23 @@ if isinstance(data, dict) and "nutrition_info" in data:
     st.markdown("### 🍽 Suggested Pairing:")
     st.info(suggestions.get(st.session_state.food_item.lower(), default_suggestion))
 
-else:
-    if data is not None:
-        st.error("❌ 'nutrition_info' is missing or data format is invalid.")
-        st.write("Raw response:")
-        st.write(data)
-
-# --- Chat Section ---
-    st.markdown("## 🧠 Chat with the Nutritionist AI")
+    # --- Chat Section (persistent) ---
+    # --- Chat Section (persistent) ---
+    st.markdown("## 🧠chat")
     chat_input = st.text_input("Ask something", key="chat_input")
-    
+
     if "chat_response" not in st.session_state:
         st.session_state.chat_response = None
-    
+
     if st.button("Chat with Me"):
         if not chat_input.strip():
             st.warning("Please enter a question.")
         else:
             try:
+                import urllib.parse
                 encoded_chat = urllib.parse.quote(chat_input)
-                url = f"https://foodnurition-5.onrender.com/ask/{encoded_chat}"
-                with st.spinner("Getting answer..."):
-                    response = requests.get(url)
+                url = f"http://127.0.0.1:8000/ask/{encoded_chat}"
+                response = requests.get(url)
                 if response.status_code == 200:
                     data = response.json()
                     st.session_state.chat_response = data["answer"]
@@ -126,8 +114,7 @@ else:
                     st.error("❌ Failed to get response from server.")
             except Exception as e:
                 st.error(f"❌ Error: {str(e)}")
-    
+
     # ✅ Show the answer if it exists
     if st.session_state.chat_response:
         st.success(f"🗨️ {st.session_state.chat_response}")
-
