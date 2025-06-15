@@ -71,6 +71,12 @@ if isinstance(data, dict) and "nutrition_info" in data:
     st.markdown("### 🧩 Macronutrient Breakdown")
     st.bar_chart(df.set_index("Macronutrient"))
 
+    score = 0
+    if fiber > 2.5: score += 1
+    if protein > 7: score += 1
+    if fat < 5: score += 1
+    if carbs < 27: score += 1
+
     # Health Score
     health_status = {
         4: "Excellent 🟢",
