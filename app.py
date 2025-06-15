@@ -104,30 +104,30 @@ else:
         st.write(data)
 
 # --- Chat Section ---
-st.markdown("## 🧠 Chat with the Nutritionist AI")
-chat_input = st.text_input("Ask something", key="chat_input")
-
-if "chat_response" not in st.session_state:
-    st.session_state.chat_response = None
-
-if st.button("Chat with Me"):
-    if not chat_input.strip():
-        st.warning("Please enter a question.")
-    else:
-        try:
-            encoded_chat = urllib.parse.quote(chat_input)
-            url = f"https://foodnurition-5.onrender.com/ask/{encoded_chat}"
-            with st.spinner("Getting answer..."):
-                response = requests.get(url)
-            if response.status_code == 200:
-                data = response.json()
-                st.session_state.chat_response = data["answer"]
-            else:
-                st.error("❌ Failed to get response from server.")
-        except Exception as e:
-            st.error(f"❌ Error: {str(e)}")
-
-# ✅ Show the answer if it exists
-if st.session_state.chat_response:
-    st.success(f"🗨️ {st.session_state.chat_response}")
+    st.markdown("## 🧠 Chat with the Nutritionist AI")
+    chat_input = st.text_input("Ask something", key="chat_input")
+    
+    if "chat_response" not in st.session_state:
+        st.session_state.chat_response = None
+    
+    if st.button("Chat with Me"):
+        if not chat_input.strip():
+            st.warning("Please enter a question.")
+        else:
+            try:
+                encoded_chat = urllib.parse.quote(chat_input)
+                url = f"https://foodnurition-5.onrender.com/ask/{encoded_chat}"
+                with st.spinner("Getting answer..."):
+                    response = requests.get(url)
+                if response.status_code == 200:
+                    data = response.json()
+                    st.session_state.chat_response = data["answer"]
+                else:
+                    st.error("❌ Failed to get response from server.")
+            except Exception as e:
+                st.error(f"❌ Error: {str(e)}")
+    
+    # ✅ Show the answer if it exists
+    if st.session_state.chat_response:
+        st.success(f"🗨️ {st.session_state.chat_response}")
 
