@@ -4,6 +4,21 @@ import re
 import pandas as pd
 import urllib.parse
 
+# --- Helper function to extract macronutrients ---
+def extract_macro(names, text):
+    if text is None:
+        return 0.0
+    for name in names:
+        pattern = fr"{name}\s*[:\-=]?\s*([0-9]+(?:\.[0-9]+)?)\s*(g|grams)?"
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            try:
+                return float(match.group(1))
+            except ValueError:
+                return 0.0
+    return 0.0
+
+# --- Streamlit Setup ---
 st.set_page_config(page_title="Food Nutrition Dashboard", layout="centered")
 st.title("🥗 AI-Based Food Nutrition Analyzer")
 
@@ -21,66 +36,34 @@ if st.button("Analyze"):
         st.warning("Please enter a food item.")
     else:
         try:
-            # FIXED: Call correct API endpoint
             url = f"https://foodnurition-5.onrender.com/analyze/{urllib.parse.quote(food_item)}"
-            response = requests.get(url)
+            with st.spinner("Analyzing nutrition..."):
+                response = requests.get(url)
             if response.status_code == 200:
                 st.session_state.nutrition_data = response.json()
-                st.session_state.food_item = food_item  # Save input for reuse
+                st.session_state.food_item = food_item
             else:
                 st.error(f"API error. Status code: {response.status_code}")
         except Exception as e:
             st.error(f"Error: {str(e)}")
 
 # --- Display if Data Exists ---
-# --- Display if Data Exists ---
 data = st.session_state.nutrition_data
 
 if isinstance(data, dict) and "nutrition_info" in data:
     nutrition_text = data["nutrition_info"]
 
+    # Extract macros
     protein = extract_macro(["Protein"], nutrition_text)
     fat = extract_macro(["Fat", "Fats"], nutrition_text)
     carbs = extract_macro(["Carbohydrates", "Carbs"], nutrition_text)
     fiber = extract_macro(["Fiber"], nutrition_text)
 
-    # Show results
+    # Show summary
     st.subheader(f"Nutrition info for: {st.session_state.food_item.capitalize()}")
     st.write(nutrition_text)
 
-else:
-    st.error("❌ 'nutrition_info' is missing or data format is invalid.")
-    st.write("Raw response:")
-    st.write(data)  # Optional: helps debugging on deployment
-
-
-
-    def extract_macro(names, text):
-        for name in names:
-            pattern = fr"{name}\s*[:\-=]?\s*([0-9]+(?:\.[0-9]+)?)\s*(g|grams)?"
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                try:
-                    return float(match.group(1))
-                except ValueError:
-                    return 0.0
-        return 0.0
-
-    if "nutrition_info" in st.session_state.nutrition_data:
-        nutrition_text = st.session_state.nutrition_data["nutrition_info"]
-    
-        protein = extract_macro(["Protein"], nutrition_text)
-        fat = extract_macro(["Fat", "Fats"], nutrition_text)
-        carbs = extract_macro(["Carbohydrates", "Carbs"], nutrition_text)
-        fiber = extract_macro(["Fiber"], nutrition_text)
-
-    else:
-        st.error("❌ 'nutrition_info' is missing in API response.")
-        st.json(st.session_state.nutrition_data)  # Optional: show full raw response
-
-
-    st.write(f"🔍 Extracted Macros — Protein: {protein}, Fat: {fat}, Carbs: {carbs}, Fiber: {fiber}")
-
+    # Macronutrient bar chart
     df = pd.DataFrame({
         "Macronutrient": ["Protein", "Fat", "Carbs", "Fiber"],
         "Grams": [protein, fat, carbs, fiber]
@@ -88,6 +71,7 @@ else:
     st.markdown("### 🧩 Macronutrient Breakdown")
     st.bar_chart(df.set_index("Macronutrient"))
 
+    # Health Score
     score = 0
     if fiber > 2.5: score += 1
     if protein > 7: score += 1
@@ -103,6 +87,7 @@ else:
     }
     st.markdown(f"### 🩺 Health Score: {score}/4 — **{health_status[score]}**")
 
+    # Suggested Pairings
     suggestions = {
         "banana": "Pair banana with Greek yogurt and oats for a complete breakfast.",
         "oats": "Top your oats with berries and nuts for extra fiber and healthy fats.",
@@ -112,31 +97,37 @@ else:
     st.markdown("### 🍽 Suggested Pairing:")
     st.info(suggestions.get(st.session_state.food_item.lower(), default_suggestion))
 
-    # --- Chat Section (persistent) ---
-    # --- Chat Section (persistent) ---
-    st.markdown("## 🧠chat")
-    chat_input = st.text_input("Ask something", key="chat_input")
+else:
+    if data is not None:
+        st.error("❌ 'nutrition_info' is missing or data format is invalid.")
+        st.write("Raw response:")
+        st.write(data)
 
-    if "chat_response" not in st.session_state:
-        st.session_state.chat_response = None
+# --- Chat Section ---
+st.markdown("## 🧠 Chat with the Nutritionist AI")
+chat_input = st.text_input("Ask something", key="chat_input")
 
-    if st.button("Chat with Me"):
-        if not chat_input.strip():
-            st.warning("Please enter a question.")
-        else:
-            try:
-                import urllib.parse
-                encoded_chat = urllib.parse.quote(chat_input)
-                url = f"http://127.0.0.1:8000/ask/{encoded_chat}"
+if "chat_response" not in st.session_state:
+    st.session_state.chat_response = None
+
+if st.button("Chat with Me"):
+    if not chat_input.strip():
+        st.warning("Please enter a question.")
+    else:
+        try:
+            encoded_chat = urllib.parse.quote(chat_input)
+            url = f"https://foodnurition-5.onrender.com/ask/{encoded_chat}"
+            with st.spinner("Getting answer..."):
                 response = requests.get(url)
-                if response.status_code == 200:
-                    data = response.json()
-                    st.session_state.chat_response = data["answer"]
-                else:
-                    st.error("❌ Failed to get response from server.")
-            except Exception as e:
-                st.error(f"❌ Error: {str(e)}")
+            if response.status_code == 200:
+                data = response.json()
+                st.session_state.chat_response = data["answer"]
+            else:
+                st.error("❌ Failed to get response from server.")
+        except Exception as e:
+            st.error(f"❌ Error: {str(e)}")
 
-    # ✅ Show the answer if it exists
-    if st.session_state.chat_response:
-        st.success(f"🗨️ {st.session_state.chat_response}")
+# ✅ Show the answer if it exists
+if st.session_state.chat_response:
+    st.success(f"🗨️ {st.session_state.chat_response}")
+
