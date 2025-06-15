@@ -38,3 +38,4 @@ async def ask_nutrition_question(question: str):
         return JSONResponse(content=structured_response, status_code=200)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
