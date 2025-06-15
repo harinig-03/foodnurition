@@ -109,9 +109,7 @@ if isinstance(data, dict) and "nutrition_info" in data:
             st.warning("Please enter a question.")
         else:
             try:
-                import urllib.parse
-                encoded_chat = urllib.parse.quote(chat_input)
-                url = f"https://foodnurition-5.onrender.com/ask/{encoded_chat}"
+                url = f"https://foodnurition-5.onrender.com/ask/{urllib.parse.quote(chat_input)}"
                 response = requests.get(url)
                 if response.status_code == 200:
                     data = response.json()
