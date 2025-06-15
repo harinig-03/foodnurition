@@ -111,7 +111,7 @@ if isinstance(data, dict) and "nutrition_info" in data:
             try:
                 import urllib.parse
                 encoded_chat = urllib.parse.quote(chat_input)
-                url = f"http://127.0.0.1:8000/ask/{encoded_chat}"
+                url = f"https://foodnurition-5.onrender.com/ask/{encoded_chat}"
                 response = requests.get(url)
                 if response.status_code == 200:
                     data = response.json()
